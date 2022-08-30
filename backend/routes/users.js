@@ -7,36 +7,28 @@ router.route('/').get((req, res) => {
     .then(users => res.json(users))
     .catch(err => res.status(400).json('Error: ' + err));
 });
-
-router.route('/add').post((req, res) => {
-  const firstname = req.body.firstname;
-  const lastname = req.body.lastname;
-
-  const newUser = new User({firstname,lastname});
-
-  newUser.save()
-    .then(() => res.json('User added!'))
-    .catch(err => res.status(400).json('Error: ' + err));
+router.route("/:id").get((req,res)=>{
+  try {
+    const userId = req.params.id;
+    User.findById(userId, function (err, eqcomlist) {
+      console.log(err);
+      if (!err) {
+        res.status(200).json({
+          responsecode: 200,
+          result: eqcomlist
+        })
+      } else {
+            throw err;
+      }
+    });
+  }
+  catch (err) {
+    res.status(500).json({
+      responsecode: 500,
+      msg: err.message  
+    })
+    console.log(err,'s');
+  }
 });
-
-router.route('/:id').delete((req, res) => {
-    User.findByIdAndDelete(req.params.id)
-      .then(() => res.json('User deleted.'))
-      .catch(err => res.status(400).json('Error: ' + err));
-  });
-  
-  router.route('/update/:id').post((req, res) => {
-    User.findById(req.params.id)
-    console.log(req.params.id)
-      .then(user => {
-        console.log(user,'s');
-        User.firstname = req.body.firstname;
-        User.firstname = req.body.lastname;
-        User.save()
-          .then(() => res.json('User updated!'))
-          .catch(err => res.status(400).json('Error: ' + err));
-      })
-      .catch(err => res.status(400).json('Error: ' + err));
-  });
 
 module.exports = router;

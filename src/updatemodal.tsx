@@ -2,7 +2,27 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
-function Signup() {
+import { useEffect, useState } from "react";
+
+
+
+
+const UpdateModal: React.FC = () => {
+
+    function formatDate(date: any) {
+        return new Date(date).toLocaleDateString()
+    }
+    const [users, setUsers] = useState<any>([])
+    const userId = localStorage.getItem('userid')   
+    useEffect(() => {
+        const fetchData = async () => {
+            const response = await fetch(`http://localhost:5000/users/${userId}`);
+            const newData = await response.json();
+            setUsers(newData.result)
+        };
+        fetchData()
+    }, [])
+
     const navigate = useNavigate();
     const phoneRegExp = /^((\\+[5-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
     const validationSchema = Yup.object().shape({
@@ -51,12 +71,12 @@ function Signup() {
     const confirmPasswordError: any = errors.confirmpassword?.message
     const doberror: any = errors.dob?.message
     const ageerror: any = errors.age?.message
-    const handleSignup = async (data: any) => {
-        console.log(data, 's');
+
+    const updateuser = async (data: any) => {
         try {
             const postdata = { username: data.username, age: data.age, dob: data.dob, email: data.email, mobileNo: data.mobileNo, password: data.password };
-            const response = await fetch('http://localhost:5000/signup', {
-                method: 'POST',
+            const response = await fetch(`http://localhost:5000/update/${userId}`, {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -67,33 +87,30 @@ function Signup() {
                 window.alert(res.msg)
             } else {
                 window.alert(res.data.msg)
-                navigate("/sign-in")
+                navigate("/dashboard")
             }
         } catch (err) {
             console.log(err);
         }
     };
+
     return (
         <div>
             <div className="container-fluid">
-                <div className="row d-flex justify-content-center align-items-center m-5" style={{ background: '#f7f7f7' }}>
-                    <div className="col-8">
-                        <img src="images/1.png"
-                            className="img-fluid" alt="Sample image"></img>
-                    </div>
-                    <div className="col-4">
+                <div className="d-flex justify-content-center align-items-center m-5">
+                    <div className="">
                         <form className="" >
                             {/* <!-- 2 column grid layout with text inputs for the first and last names --> */}
                             <div className="form-outline">
                                 <label className="form-label">Username</label>
-                                <input {...register('username')} type="text" id="form3Example1" className="form-control" />
+                                <input {...register('username')} type="text" defaultValue={users.username}  id="form3Example1" className="form-control" />
                             </div>
                             <div className="text-danger">{usernameError}</div>
                             <div className="row">
                                 <div className="col">
                                     <div className="form-outline">
                                         <label className="form-label" >age</label>
-                                        <input type="number" {...register('age')} id="form8Example3" className="form-control" />
+                                        <input type="number" {...register('age')} defaultValue={users.age} id="form8Example3" className="form-control" />
                                         <div className="text-danger">{ageerror}</div>
                                     </div>
                                 </div>
@@ -107,32 +124,28 @@ function Signup() {
                             </div>
                             <div className="form-outline">
                                 <label className="form-label" >Mobile No</label>
-                                <input type="number" {...register('mobileNo')} id="form3Example2" className="form-control" />
+                                <input type="number" {...register('mobileNo')} defaultValue={users.mobileNo} id="form3Example2" className="form-control" />
                             </div>
                             <div className="text-danger">{mobileError}</div>
                             <div className="form-outline mb-4">
                                 <label className="form-label" >Email</label>
-                                <input type="email" {...register('email')} id="form3Example3" className="form-control" />
+                                <input type="email" {...register('email')} defaultValue={users.email} id="form3Example3" className="form-control" />
                                 <div className="text-danger">{emailError}</div>
                             </div>
                             <div className="form-outline mb-4">
                                 <label className="form-label" >Password</label>
-                                <input type="password" {...register('password')} id="form3Example4" className="form-control" />
+                                <input type="password" {...register('password')} defaultValue={users.password} id="form3Example4" className="form-control" />
                                 <div className="text-danger">{passwordError}</div>
-                            </div>
-                            <div className="form-outline mb-4">
-                                <label className="form-label" >confirm Password</label>
-                                <input type="password" {...register('confirmpassword')} id="form3Example4" className="form-control" />
-                                <div className="text-danger">{confirmPasswordError}</div>
-                            </div>
-                            <button onClick={handleSubmit(handleSignup)} className="btn btn-primary btn-block mb-4">Sign up</button>
+                            </div> 
+                            <button onClick={handleSubmit(updateuser)} className="btn btn-primary btn-block mb-4">save changes</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-    );
+
+    )
+
 }
-export default Signup;
 
-
+export default UpdateModal

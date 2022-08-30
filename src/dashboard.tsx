@@ -1,39 +1,48 @@
 import { useEffect, useState } from "react";
-
-
-
-
+import { useNavigate } from "react-router";
+import UpdateModal from "./updatemodal";
 const Dashoard: React.FC = () => {
+    const [users, setUsers] = useState<any>([])
+    const username = localStorage.getItem('username')
+    const navigate = useNavigate();
+    const logout = () => {
+        localStorage.clear()
+        navigate("/")
 
-    const [users ,setUsers] = useState<any>()
-    console.log(users);
-    
-
-    // useEffect(() => {
-    //     // GET request using fetch inside useEffect React hook
-    //     fetch('https://api.npms.io/v2/search?q=react')
-    //         .then(response => response.json())
-    //         .then(data => setTotalReactPackages(data.total));
-    
-    // // empty dependency array means this effect will only run once (like componentDidMount in classes)
-    // }, []);
-
+    }
+    function formatDate(date: any) {
+        return new Date(date).toLocaleDateString()
+    }
     useEffect(() => {
         const fetchData = async () => {
-          const response = await fetch(`http://localhost:5000/users`);
-          const newData = await response.json();
-          setUsers(newData)
+            const response = await fetch(`http://localhost:5000/users`);
+            const newData = await response.json();
+            setUsers(newData)
         };
-      fetchData()
-      },[])
-
+        fetchData()
+    }, [])
     return (
         <div>
-            {/* <!-- Navbar --> */}
-            <nav className="navbar navbar-expand-lg navbar-light bg-light">
+            <div>
+                <div className="modal fade" id="exampleModalScrollable" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+                    <div className="modal-dialog modal-dialog-scrollable" role="document">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title" id="exampleModalScrollableTitle">profile</h5>
+                                <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div className="modal-body">
+                                <UpdateModal/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <nav className="navbar navbar-expand-lg navbar-light bg-light">
                 <div className="container-fluid">
-                    {/* <!-- Toggle button --> */}
                     <button
                         className="navbar-toggler"
                         type="button"
@@ -45,19 +54,7 @@ const Dashoard: React.FC = () => {
                     >
                         <i className="fas fa-bars"></i>
                     </button>
-
-                    {/* <!-- Collapsible wrapper --> */}
                     <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                        {/* <!-- Navbar brand --> */}
-                        <a className="navbar-brand mt-2 mt-lg-0" href="#">
-                            <img
-                                src="https://mdbcdn.b-cdn.net/img/logo/mdb-transaprent-noshadows.webp"
-                                height="15"
-                                alt="MDB Logo"
-                                loading="lazy"
-                            />
-                        </a>
-                        {/* <!-- Left links --> */}
                         <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                             <li className="nav-item">
                                 <a className="nav-link" href="#">Dashboard</a>
@@ -69,15 +66,11 @@ const Dashoard: React.FC = () => {
                                 <a className="nav-link" href="#">Projects</a>
                             </li>
                         </ul>
-                        {/* <!-- Left links --> */}
                     </div>
-                    {/* <!-- Collapsible wrapper --> */}
-                    {/* 
-                    <!-- Right elements --> */}
                     <div className="d-flex align-items-center">
-                        <p className="text-reset mt-3 m-lg-3">
-                            username
-                        </p>
+                        <h5 className="text-reset mt-3 m-lg-3 text-capitalize">
+                            {username}
+                        </h5>
                         <div className="dropleft">
                             <a
                                 className="dropdown-toggle"
@@ -94,18 +87,19 @@ const Dashoard: React.FC = () => {
                                 />
                             </a>
                             <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <a className="dropdown-item" href="#">My Profile</a>
-                                <a className="dropdown-item" href="#">Settings</a>
-                                <a className="dropdown-item" href="#">logout</a>
+                                <a className="dropdown-item" data-toggle="modal" data-target="#exampleModalScrollable">Edit Profile</a>
+                                <a className="dropdown-item" onClick={logout}>logout</a>
                             </div>
                         </div>
 
                     </div>
-                    {/* <!-- Right elements --> */}
                 </div>
             </nav>
-
             <div className="container mt-5">
+
+                <div>
+                    <h6>User Registerd so for:</h6>
+                </div>
                 <table className="table table-striped">
                     <thead>
                         <tr>
@@ -118,22 +112,18 @@ const Dashoard: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody>
-                     {users.map((items:any,index:number)=>  <tr key={items.id}>
+                        {users.map((items: any, index: number) => <tr key={items._id}>
                             <th scope="row">{index + 1}</th>
                             <td>{items.username}</td>
                             <td>{items.email}</td>
                             <td>{items.mobileNo}</td>
-                            <td>{items.dob}</td>
+                            <td>{formatDate(items.dob)}</td>
                             <td>{items.age}</td>
-                        </tr>)} 
+                        </tr>)}
                     </tbody>
                 </table>
-
             </div>
-
         </div>
     )
-
 }
-
 export default Dashoard;

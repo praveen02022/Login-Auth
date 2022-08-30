@@ -5,26 +5,42 @@ import Dashoard from './dashboard';
 import Login from './login';
 import Signup from './signup';
 
-const token = localStorage.getItem('token')
+
 function App() {
 
-  return (
 
+  const token = localStorage.getItem('token')
 
-    <div >
-      <Router>
-        {<Routes>
-          token? <Route path="/dashboard" element={<Dashoard />} />:
+  if (token) {
+
+    
+    return (
+      <div >
+        <Router>
+          <Routes>
+          <Route path="/dashboard" element={<Dashoard />} />
+            <Route path="/" element={<Login />} />
+            <Route path="/sign-in" element={<Login />} />
+            <Route path="/sign-up" element={<Signup />} />
+          </Routes>
+        </Router>
+      </div>
+    );
+  } else {
+    return (
+      <div >
+        <Router>
+          <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/sign-in" element={<Login />} />
-          <Route path="/sign-up" element={<Signup/>} />
-        </Routes>}
+            <Route path="/sign-in" element={<Login />} />
+            <Route path="/sign-up" element={<Signup />} />
+          </Routes>
+        </Router>
+      </div>
 
-      </Router>
+    );
+  }
 
-    </div>
-
-  );
 }
 
 export default App;
