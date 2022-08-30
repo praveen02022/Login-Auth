@@ -1,5 +1,6 @@
 const { ObjectId } = require("bson");
 const mongoose = require("mongoose");
+const { number } = require("yup");
 
 
 const userschema = new mongoose.Schema({
@@ -9,15 +10,32 @@ const userschema = new mongoose.Schema({
         type:String,
         required: true,
     },
-    password: { type: String, required: true }
+    email: { 
+        type:String,   
+        required: true,
+     },
+     mobileNo: { 
+        type: Number,
+        required: true,
+     },
+     dob:{
+      type:Date,
+      required: true,
+     },
+     age: { 
+      type: Number,
+      required: true,
+   },
+    password: { 
+        type: String, 
+        required: true
+     },
+     
 
-    // img:
-    // {
-    //     data: Buffer,
-    //     contentType: String
-    // }
 
-});
+},
+   {timestamps:true}
+);
 
 const usermodel = mongoose.model('user', userschema);
 

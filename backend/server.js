@@ -29,67 +29,84 @@ const usersRouter = require('./routes/users');
 
 app.use('/users', usersRouter);
 
-app.post('/register', async (req, res) => {
-  const { username, password: plainTextPassword } = req.body
-
-  if (!username || typeof username !== 'string') {
-    return res.json({ status: 'error', error: 'Invalid username' })
-  }
-
-  if (!plainTextPassword || typeof plainTextPassword !== 'string') {
-    return res.json({ status: 'error', error: 'Invalid password' })
-  }
-
-  if (plainTextPassword.length < 5) {
-    return res.json({
-      status: 'error',
-      error: 'Password too small. Should be atleast 6 characters'
-    })
-  }
-
-  const password = await bcrypt.hash(plainTextPassword, 10)
+app.post("/signup", async (req, res, next) => {
 
   try {
-    const response = await User.create({
+    const { username, password, email, mobileNo,age,dob } = req.body;
+    const newUser = User({
       username,
+      email,
+      mobileNo,
+      age,
+      dob,
       password
+    });
+    await newUser.save();
+    let token;
+    token = jwt.sign(
+      { userId: newUser.id, email: newUser.email },
+      "secretkeyappearshere",
+      { expiresIn: "1h" }
+    );
+    res
+      .status(201)
+      .json({
+        success: true,
+        data: {
+          userId: newUser.id,
+          token: token,
+          msg:"signup successfully"
+        },
+      });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      responsecode: 500,
+      msg: err.message
     })
-    console.log('User created successfully: ', response)
-  } catch (error) {
-    if (error.code === 11000) {
-      // duplicate key
-      return res.json({ status: 'error', error: 'Username already in use' })
+    console.log(err.message);
+  }
+});
+
+app.post("/signin", async (req, res) => {
+
+  try {
+    let { username, password } = req.body;
+    let existingUser;
+    existingUser = await User.findOne({ username: username });
+    if (!existingUser || existingUser.password != password) {
+      const error = Error("invalid user or invalid passoword");
+      throw error;
     }
-    throw error
+    let token;
+    //   //Creating jwt token
+    token = jwt.sign(
+      { userId: existingUser.id, email: existingUser.email },
+      "secretkeyappearshere",
+      { expiresIn: "1h" }
+    );
+    res
+      .status(200)
+      .json({
+        success: true,
+        message:"login sucessfully",
+        data: {
+          userId: existingUser.id,
+          email: existingUser.email,
+          token: token,
+        },
+      });
+  } catch (err) {
+
+    res.status(500).json({
+      responsecode: 500,
+      success:false,
+      msg: err.message
+    })
+    console.log(err.message);
   }
 
-  res.json({ status: 'ok' })
-})
-
-app.post('/login', async (req, res) => {
-	const { username, password } = req.body
-	const user = await User.findOne({ username }).lean()
-
-	if (!user) {
-		return res.json({ status: 'error', error: 'Invalid username/password' })
-	}
-
-	if (await bcrypt.compare(password, user.password)) {
-		// the username, password combination is successful
-
-		const token = jwt.sign(
-			{
-				id: user._id,
-				username: user.username
-			},
-			JWT_SECRET
-		)
-
-		return res.json({ status: 'ok', data: token })
-	}
-
-	res.json({ status: 'error', error: 'Invalid username/password' })
-})
+});
 app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
