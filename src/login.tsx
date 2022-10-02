@@ -3,7 +3,11 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const Login: React.FC = (props) => {
+ 
     const navigate = useNavigate();
     const validationSchema = Yup.object().shape({
         email: Yup.string()
@@ -42,7 +46,7 @@ const Login: React.FC = (props) => {
                 localStorage.setItem("token", JSON.stringify(res.data.token));
                 localStorage.setItem("username",res.data.name);
                 localStorage.setItem("userid",res.data.userId);
-                window.alert(res.message)
+                toast(res.message!)
                 navigate("/dashboard")
                 window.location.reload();
             }

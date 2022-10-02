@@ -12,11 +12,20 @@ const UpdateModal: React.FC = () => {
     function formatDate(date: any) {
         return new Date(date).toLocaleDateString()
     }
+    const gettoken:any = localStorage.getItem('token')
+    const token = JSON.parse(gettoken)
     const [users, setUsers] = useState<any>([])
     const userId = localStorage.getItem('userid')   
     useEffect(() => {
         const fetchData = async () => {
-            const response = await fetch(`http://localhost:5000/users/${userId}`);
+            const response = await fetch(`http://localhost:5000/users/${userId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            })
+            // const response = await fetch(`'http://localhost:5000/users/${userId}`);
             const newData = await response.json();
             setUsers(newData.result)
         };
@@ -72,10 +81,15 @@ const UpdateModal: React.FC = () => {
     const doberror: any = errors.dob?.message
     const ageerror: any = errors.age?.message
 
+
+   const oninputChange = (e:any)=>{
+       console.log(e);
+       
+   }
     const updateuser = async (data: any) => {
         try {
             const postdata = { username: data.username, age: data.age, dob: data.dob, email: data.email, mobileNo: data.mobileNo, password: data.password };
-            const response = await fetch(`http://localhost:5000/update/${userId}`, {
+            const response = await fetch(`'http://localhost:5000/update/${userId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -103,14 +117,14 @@ const UpdateModal: React.FC = () => {
                             {/* <!-- 2 column grid layout with text inputs for the first and last names --> */}
                             <div className="form-outline">
                                 <label className="form-label">Username</label>
-                                <input {...register('username')} type="text" defaultValue={users.username}  id="form3Example1" className="form-control" />
+                                <input {...register('username')} type="text" value={users.username} onChange ={oninputChange}  id="form3Example1" className="form-control" />
                             </div>
                             <div className="text-danger">{usernameError}</div>
                             <div className="row">
                                 <div className="col">
                                     <div className="form-outline">
                                         <label className="form-label" >age</label>
-                                        <input type="number" {...register('age')} defaultValue={users.age} id="form8Example3" className="form-control" />
+                                        <input type="number" {...register('age')} value={users.age} id="form8Example3" className="form-control" />
                                         <div className="text-danger">{ageerror}</div>
                                     </div>
                                 </div>
@@ -124,17 +138,17 @@ const UpdateModal: React.FC = () => {
                             </div>
                             <div className="form-outline">
                                 <label className="form-label" >Mobile No</label>
-                                <input type="number" {...register('mobileNo')} defaultValue={users.mobileNo} id="form3Example2" className="form-control" />
+                                <input type="number" {...register('mobileNo')} value={users.mobileNo} id="form3Example2" className="form-control" />
                             </div>
                             <div className="text-danger">{mobileError}</div>
                             <div className="form-outline mb-4">
                                 <label className="form-label" >Email</label>
-                                <input type="email" {...register('email')} defaultValue={users.email} id="form3Example3" className="form-control" />
+                                <input type="email" {...register('email')} value={users.email} id="form3Example3" className="form-control" />
                                 <div className="text-danger">{emailError}</div>
                             </div>
                             <div className="form-outline mb-4">
                                 <label className="form-label" >Password</label>
-                                <input type="password" {...register('password')} defaultValue={users.password} id="form3Example4" className="form-control" />
+                                <input type="password" {...register('password')} value={users.password} id="form3Example4" className="form-control" />
                                 <div className="text-danger">{passwordError}</div>
                             </div> 
                             <button onClick={handleSubmit(updateuser)} className="btn btn-primary btn-block mb-4">save changes</button>

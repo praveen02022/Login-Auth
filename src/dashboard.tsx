@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import UpdateModal from "./updatemodal";
+
 const Dashoard: React.FC = () => {
     const [users, setUsers] = useState<any>([])
     const username = localStorage.getItem('username')
+    const gettoken:any = localStorage.getItem('token')
+    const token = JSON.parse(gettoken)
+
+    
     const navigate = useNavigate();
     const logout = () => {
         localStorage.clear()
@@ -15,8 +20,17 @@ const Dashoard: React.FC = () => {
     }
     useEffect(() => {
         const fetchData = async () => {
-            const response = await fetch(`http://localhost:5000/users`);
+            const response = await fetch('http://localhost:5000/users', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            })
+            // const response = await fetch(`http://localhost:5000/users`);
             const newData = await response.json();
+            console.log(newData);
+            
             setUsers(newData)
         };
         fetchData()
@@ -34,7 +48,7 @@ const Dashoard: React.FC = () => {
                                 </button>
                             </div>
                             <div className="modal-body">
-                                <UpdateModal/>
+                                <UpdateModal aira-label={"Close"} />
                             </div>
                         </div>
                     </div>
@@ -96,7 +110,6 @@ const Dashoard: React.FC = () => {
                 </div>
             </nav>
             <div className="container mt-5">
-
                 <div>
                     <h6>User Registerd so for:</h6>
                 </div>
